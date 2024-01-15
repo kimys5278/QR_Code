@@ -5,6 +5,8 @@ import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
+import com.springbootprj.qrcode_prac.service.QrServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,21 +24,17 @@ import java.io.IOException;
 //단점: QR 코드의 수정,삭제 불가능.
 @RestController
 public class QrController {
+    private QrServiceImpl qrServiceImpl;
+
+    @Autowired
+    public QrController(QrServiceImpl qrServiceImpl){
+        this.qrServiceImpl = qrServiceImpl;
+    }
     @GetMapping("/qr")
-    public Object cerateQR(@RequestParam String url) throws WriterException, IOException{
-        //qr 크기 설정
-        int width = 200;
-        int height = 200;
-
-        // QR Code - BitMatrix: qr code 정보 생성
-        BitMatrix bitMatrix = new MultiFormatWriter().encode(url, BarcodeFormat.QR_CODE,width,height);
-
-        try(ByteArrayOutputStream out = new ByteArrayOutputStream();){
-            MatrixToImageWriter.writeToStream(bitMatrix,"PNG",out);
-            return ResponseEntity.ok()
-                    .contentType(MediaType.IMAGE_PNG)
-                    .body(out.toByteArray());
-        }
-
+    public Object cerateQR(@RequestParam String url) throws WriterException, IOException {
+        Object Qr = qrServiceImpl.cerateQR(url);
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .body(Qr);
     }
 }
